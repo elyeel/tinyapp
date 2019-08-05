@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/elyeel/tinyapp/issues"
   },
-  "homepage": "https://github.com/elyeel/tinyapp#readme"
+  "homepage": "https://github.com/elyeel/tinyapp#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
 }
