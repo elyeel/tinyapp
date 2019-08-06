@@ -53,7 +53,7 @@ app.post("/urls", (req, res) => {
   
 });
 
-app.post("urls/:url/delete", (request, response) => { //delete function
+app.post("/urls/:url/delete", (request, response) => { //delete function
   delete urlDatabase[request.params.url];
   console.log(urlDatabase);
   response.redirect("/urls");
