@@ -59,6 +59,12 @@ app.post("/urls", (req, res) => {
   
 });
 
+app.post("/logout", (request, response) => { //post logout
+  response.clearCookie('${username}');
+  response.redirect("/urls");
+  response.render("urls_index");
+});
+
 app.post("/urls/:url/delete", (request, response) => { //delete function
   delete urlDatabase[request.params.url];
   console.log(urlDatabase);
