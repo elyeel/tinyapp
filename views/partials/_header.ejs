@@ -21,14 +21,14 @@
 
 
     <form method="POST" action="/login">
-      <label for="username">User Name: 
+      <label for="username">
         <% if (username) { %>
-          <h5<%= username %>></h5>
+          <h5><%= username %></h5>
         <% } else { %>
-          <h5 User Name: ></h5>
+          <h5> User Name: </h5>
         <% } %>
       </label>
-      <input type="text" id="username" name="username"/><br/>
+      <input type="text" id="username" name="username"/>
       <button type="submit">Sign In</button>
     </form>
   </nav>
