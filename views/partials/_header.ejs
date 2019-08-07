@@ -4,11 +4,23 @@
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
+  <!-- <form method="POST" action="/login">
+    <label for="user-name">User Name: </label>
+    <input type="text" id="user-name" name="userName"/>
+  </form>  -->
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
       <div class="navbar-nav">
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
+        <a class="nav-item nav-link">
+          
+        </a> 
       </div>
     </div>
+    <form method="POST" action="/login">
+      <label for="username">User Name: </label>
+      <input type="text" id="username" name="username"/><br/>
+      <button type="submit">Sign In</button>
+    </form>
   </nav>
 </header>
