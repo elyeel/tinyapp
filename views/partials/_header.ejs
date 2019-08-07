@@ -25,13 +25,15 @@
         <% if (username) { %>
           <form method="POST" action="/logout">
             <label for="logout">
-            <h5>Logged In as: <%= username %>!
-            <button type="submit">LogOut</button></h5></label>
+            <h5>Logged In as: <%= username %>!</h5>
+            <!-- <input type="text" id="username" name="username" value="<%= username %>"/> -->
+            <button type="submit">LogOut</button></label>
           </form>
         <% } else { %>
           <form method="POST" action="/login">
           <h5> User Name: </h5>
           <input type="text" id="username" name="username"/>
+          <!-- <input type="text" id="password" name="password" /> -->
           <button type="submit">Sign In</button></form>
         <% } %>
       </label>
