@@ -18,7 +18,27 @@ function generateRandomString() {
 }
 // console.log(generateRandomString());
 
+let users = { 
+  "userRandomID": {
+    id: "userRandomID", 
+    email: "user@example.com", 
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID", 
+    email: "user2@example.com", 
+    password: "dishwasher-funk"
+  }
+};
 
+const checkEmail = function(email,id) {
+  const getEmail = users.find(emailFound => users[id].email === email);
+  if (emailFound) {
+    return true;
+  } else {
+    return false;
+  }
+};
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
@@ -88,7 +108,26 @@ app.post("/login", (request, response) => { //set cookies
   response.cookie("username",request.body.username);
   response.redirect("/urls");
   // response.render("urls_index", templateVars);
-})
+});
+
+app.post("/register", (request, response) => { //append registry data, cookie
+  // console.log("Register this ---> ", request.body);
+  users[request.body.userID] = {};
+  const user = request.body;
+  // console.log("user data ---> ", user);
+  console.log(users);
+  if (request.body.emailID === '' || request.body.passwordID === '') {
+    response.statusCode = 400;
+    response.redirect("/register");
+  }
+  
+  response.cookie("username", request.body.userID);
+  users[request.body.userID].id = user.userID;
+  users[request.body.userID].email = user.emailID;
+  users[request.body.userID].password = user.passwordID;
+  // console.log(users);
+  response.redirect("/urls");
+});
 
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL];
@@ -104,6 +143,12 @@ app.get("/urls/:shortURL", (req, res) => {
   let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
   res.render("urls_show", templateVars);
 });
+
+app.get("/register", (request, response) => {
+  response.render("user_reg");
+})
+
+
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
