@@ -17,8 +17,17 @@
         </a> 
       </div>
     </div>
+
+
+
     <form method="POST" action="/login">
-      <label for="username">User Name: </label>
+      <label for="username">User Name: 
+        <% if (username) { %>
+          <h5<%= username %>></h5>
+        <% } else { %>
+          <h5 User Name: ></h5>
+        <% } %>
+      </label>
       <input type="text" id="username" name="username"/><br/>
       <button type="submit">Sign In</button>
     </form>
