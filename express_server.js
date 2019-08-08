@@ -33,14 +33,18 @@ let users = {
 
 const checkEmail = function(email) {
   const usersKey = Object.keys(users);
+  // console.log(usersKey," <---> ",email);
   // const getEmail = users.find(emailFound => users[id].email === email);
   for (let user of usersKey) {
+    // console.log(user, " email = ", users[user].email);
     if (users[user].email === email) {
       return true;
     } else {
-      return false;
+      // console.log('content user[user].email = ', users[user].email);
+      // return false;
     }
-  }
+  } 
+  return false;
 };
 
 const urlDatabase = {
@@ -73,19 +77,19 @@ app.get("/urls/new", (request, response) => {
 });
 
 app.post("/urls", (req, res) => {
-  console.log(req.body);  // Log the POST request body to the console
+  // console.log(req.body);  // Log the POST request body to the console
   const char = generateRandomString();
   urlDatabase[char] = req.body.longURL;
   // res.send(res.statusCode = 302);         // Respond with 'Ok' (we will replace this)
   res.redirect("/urls/" + char);
-  console.log(urlDatabase);
+  // console.log(urlDatabase);
   
 });
 
 app.post("/logout", (request, response) => { //post logout
 
   
-  console.log("LOGout --->", request.body);
+  // console.log("LOGout --->", request.body);
   response.clearCookie("username");
   response.redirect("/urls");
   // response.render("urls_index");
@@ -93,7 +97,7 @@ app.post("/logout", (request, response) => { //post logout
 
 app.post("/urls/:url/delete", (request, response) => { //delete function
   delete urlDatabase[request.params.url];
-  console.log(urlDatabase);
+  // console.log(urlDatabase);
   response.redirect("/urls");
 });
 
@@ -101,13 +105,13 @@ app.post("/urls/:id", (request, response) => {
   const nURL = request.body.newURL;
   const id = request.params.id;
   urlDatabase[id] = nURL;
-  console.log(urlDatabase);
+  // console.log(urlDatabase);
   response.redirect(`/urls/${id}`);
 });
 
 app.post("/login", (request, response) => { //set cookies
    
-  console.log("Test ---> ",request.body);
+  // console.log("Test ---> ",request.body);
   response.cookie("username",request.body.username);
   response.redirect("/urls");
   // response.render("urls_index", templateVars);
@@ -118,18 +122,22 @@ app.post("/register", (request, response) => { //append registry data, cookie
   users[request.body.userID] = {};
   const user = request.body;
   // console.log("user data ---> ", user);
-  console.log(users);
+  // console.log("before checking for email ---> ", users);
   if (request.body.emailID === '' || request.body.passwordID === '') {
     response.status(400).send("Either empty password or email!");
     // response.redirect("/register");
     console.log("Found either empty email or password");
     return;
-  };
+  };    
+  // console.log("Current users db befor checking email : ", users); // check for users database before checking existing email
+  // const found = checkEmail(request.body.emailID);
   if (checkEmail(request.body.emailID)) {
     console.log("Found Email existed on database!!!!");
     response.status(400).send("Found email entered existed on Database, Please register with new email");
     // response.redirect("/register");
     return;
+  } else {
+    console.log("not found",request.body.emailID);
   };
   
   response.cookie("username", request.body.userID);
