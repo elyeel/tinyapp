@@ -1,17 +1,19 @@
 <div class="login-page">
   <div class="form">
-    <form class="register-form">
+    <!-- <form class="register-form">
       <input type="text" placeholder="name"/>
       <input type="password" placeholder="password"/>
       <input type="text" placeholder="email address"/>
       <button>create</button>
       <p class="message">Already registered? <a href="#">Sign In</a></p>
-    </form>
-    <form class="login-form">
-      <input type="text" placeholder="username"/>
-      <input type="password" placeholder="password"/>
+    </form> -->
+    <form class="login-form" method="POST" action="/login">
+      <input type="email" placeholder="your.email@email.com" name="emailID"/>
+      <input type="password" placeholder="your password" name="passwordID"/>
       <button>login</button>
-      <p class="message">Not registered? <a href="#">Create an account</a></p>
+    </form>
+    <form method="GET" action="/register">
+      <p class="message">Not registered? <a href="/register">Create an account</a></p>
     </form>
   </div>
 </div>

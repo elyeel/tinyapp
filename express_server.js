@@ -31,6 +31,30 @@ let users = {
   }
 };
 
+const getUserID = function(email,select) {
+  const userKeys = Object.keys(users);
+  let usr = '';
+  let pass = "";
+  for (let user of userKeys) {
+    if (users[user].email === email) {
+      usr = users[user].id;
+      pass = users[user].password;
+    }
+  }
+  switch (select) {
+    case 1:
+      return usr;
+      break;
+    case 2:
+      return pass;
+      break;
+    default:
+      return usr;
+  }
+};
+
+
+
 const checkEmail = function(email) {
   const usersKey = Object.keys(users);
   // console.log(usersKey," <---> ",email);
@@ -53,15 +77,31 @@ const urlDatabase = {
 };
 
 app.get("/", (req, res) => {
-  res.send("Hello!");
+  res.redirect("/login");
 });
 
 app.get("/urls", (req, res) => {
-  let templateVars = { urls: urlDatabase, 
-   userID: req.cookies.userID,
-   emailID: req.cookies.emailID,
-   passwordID: req.cookies.passwordID
+  const email = req.cookies.emailID;
+  const userKeys = Object.keys(users);
+  let usr = '';
+  let pass = "";
+  for (let user of userKeys) {
+    if (users[user].email === req.cookies.emailID) {
+      usr = users[user].id;
+      pass = users[user].password;
+    }
   };
+  console.log("Found user = ", usr, " == ", pass);
+  let templateVars = { urls: urlDatabase, 
+   userID: usr,
+   emailID: req.cookies.emailID,
+   passwordID: pass
+  };
+  if (req.cookies.emailID) {
+    res.cookie("userID", usr);
+    res.cookie("passwordID", pass);
+    res.cookie("emailID", email);
+  }
   console.log(templateVars);
   res.render("urls_index", templateVars);
 });
@@ -78,6 +118,7 @@ app.get("/urls/new", (request, response) => {
   response.render("urls_new");
 });
 
+
 app.post("/urls", (req, res) => {
   // console.log(req.body);  // Log the POST request body to the console
   const char = generateRandomString(6);
@@ -93,6 +134,8 @@ app.post("/logout", (request, response) => { //post logout
   
   // console.log("LOGout --->", request.body);
   response.clearCookie("emailID");
+  response.clearCookie("userID");
+  response.clearCookie("passwordID");
   response.redirect("/urls");
   // response.render("urls_index");
 });
@@ -112,9 +155,19 @@ app.post("/urls/:id", (request, response) => {
 });
 
 app.post("/login", (request, response) => { //set cookies
-   
+  if (!checkEmail(request.body.emailID)) {
+    response.status(403).send("Can't find your email on DB, Please register");
+    return;
+  }
+  const tempPass = getUserID(request.body.emailID, 2);
+  if (tempPass !== request.body.passwordID) {
+    response.status(403).send("Password doesn't match, please re-login");
+    return;
+  }
   // console.log("Test ---> ",request.body);
-  response.cookie("emailID",request.body.emailID); 
+  response.cookie("userID", (getUserID(request.body.emailID, 1))); //passing userid to cookie
+  response.cookie("emailID",request.body.emailID);
+  response.cookie("passwordID", (getUserID(request.body.emailID, 2))); //passing password to cookie 
   response.redirect("/urls");
   // response.render("urls_index", templateVars);
 });
@@ -169,7 +222,9 @@ app.get("/register", (request, response) => {
   response.render("user_reg");
 })
 
-
+app.get("/login", (request, response) => {
+  response.render("user_login");
+})
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);

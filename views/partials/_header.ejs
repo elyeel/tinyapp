@@ -4,40 +4,27 @@
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
-  <!-- <form method="POST" action="/login">
-    <label for="user-name">User Name: </label>
-    <input type="text" id="user-name" name="userName"/>
-  </form>  -->
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
       <div class="navbar-nav">
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
-        <a class="nav-item nav-link">
-          
-        </a> 
       </div>
     </div>
-
-
-
-    
-      <label for="emailID">
-        <% if (emailID) { %>
-          <form method="POST" action="/logout">
-            <label for="logout">
-            <h5>Logged In as: <%= emailID %>!</h5>
-            <input type="text" id="emailID" name="emailID" value="<%= emailID %>"/>
-            <button type="submit">LogOut</button></label>
-          </form>
-        <% } else { %>
-          <form method="POST" action="/login">
-          <h5> Email: </h5>
-          <input type="text" id="emailID" name="emailID"/>
-          <!-- <input type="text" id="password" name="password" /> -->
-          <button type="submit">Sign In</button></form>
-        <% } %>
-      </label>
+    <div>
+      <% if (emailID) { %>
+        <form method="POST" action="/logout">
+          <label for="logout">
+          <h5>Logged In as: <%= emailID %>!</h5>
+          <input type="text" id="emailID" name="emailID" value="<%= emailID %>" disabled/>
+          <button type="submit">LogOut</button></label>
+        </form>
+      <% } else { %>
+        <a href="/login" class="btn btn-info" role="button"> Login </a>
+      </div>
+      <div>
+        <a href="/register" class="btn btn-info" role="button"> Register </a>
+      </div>
+      <% } %>
       
-    
   </nav>
 </header>
