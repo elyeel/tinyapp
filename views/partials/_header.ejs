@@ -21,18 +21,18 @@
 
 
     
-      <label for="username">
-        <% if (username) { %>
+      <label for="emailID">
+        <% if (emailID) { %>
           <form method="POST" action="/logout">
             <label for="logout">
-            <h5>Logged In as: <%= username %>!</h5>
-            <!-- <input type="text" id="username" name="username" value="<%= username %>"/> -->
+            <h5>Logged In as: <%= emailID %>!</h5>
+            <input type="text" id="emailID" name="emailID" value="<%= emailID %>"/>
             <button type="submit">LogOut</button></label>
           </form>
         <% } else { %>
           <form method="POST" action="/login">
-          <h5> User Name: </h5>
-          <input type="text" id="username" name="username"/>
+          <h5> Email: </h5>
+          <input type="text" id="emailID" name="emailID"/>
           <!-- <input type="text" id="password" name="password" /> -->
           <button type="submit">Sign In</button></form>
         <% } %>

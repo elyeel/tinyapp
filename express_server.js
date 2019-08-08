@@ -7,10 +7,10 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 app.set("view engine", "ejs");
 
-function generateRandomString() {
+function generateRandomString(n) {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   let short = '';
-  for (let i = 0; i < 6; i++) {
+  for (let i = 0; i < n; i++) {
     const random = Math.floor(Math.random() * 62);
     short += chars[random];
   }
@@ -58,7 +58,9 @@ app.get("/", (req, res) => {
 
 app.get("/urls", (req, res) => {
   let templateVars = { urls: urlDatabase, 
-   username: req.cookies["username"]
+   userID: req.cookies.userID,
+   emailID: req.cookies.emailID,
+   passwordID: req.cookies.passwordID
   };
   console.log(templateVars);
   res.render("urls_index", templateVars);
@@ -78,7 +80,7 @@ app.get("/urls/new", (request, response) => {
 
 app.post("/urls", (req, res) => {
   // console.log(req.body);  // Log the POST request body to the console
-  const char = generateRandomString();
+  const char = generateRandomString(6);
   urlDatabase[char] = req.body.longURL;
   // res.send(res.statusCode = 302);         // Respond with 'Ok' (we will replace this)
   res.redirect("/urls/" + char);
@@ -90,7 +92,7 @@ app.post("/logout", (request, response) => { //post logout
 
   
   // console.log("LOGout --->", request.body);
-  response.clearCookie("username");
+  response.clearCookie("emailID");
   response.redirect("/urls");
   // response.render("urls_index");
 });
@@ -112,14 +114,14 @@ app.post("/urls/:id", (request, response) => {
 app.post("/login", (request, response) => { //set cookies
    
   // console.log("Test ---> ",request.body);
-  response.cookie("username",request.body.username);
+  response.cookie("emailID",request.body.emailID); 
   response.redirect("/urls");
   // response.render("urls_index", templateVars);
 });
 
 app.post("/register", (request, response) => { //append registry data, cookie
   // console.log("Register this ---> ", request.body);
-  users[request.body.userID] = {};
+  
   const user = request.body;
   // console.log("user data ---> ", user);
   // console.log("before checking for email ---> ", users);
@@ -139,9 +141,9 @@ app.post("/register", (request, response) => { //append registry data, cookie
   } else {
     console.log("not found",request.body.emailID);
   };
-  
-  response.cookie("username", request.body.userID);
-  users[request.body.userID].id = user.userID;
+  users[request.body.userID] = {};
+  response.cookie("emailID", request.body.emailID);  //go back to this if wrong ,request.body.userID
+  users[request.body.userID].id = generateRandomString(4);
   users[request.body.userID].email = user.emailID;
   users[request.body.userID].password = user.passwordID;
   // console.log(users);
