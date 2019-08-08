@@ -31,12 +31,15 @@ let users = {
   }
 };
 
-const checkEmail = function(email,id) {
-  const getEmail = users.find(emailFound => users[id].email === email);
-  if (emailFound) {
-    return true;
-  } else {
-    return false;
+const checkEmail = function(email) {
+  const usersKey = Object.keys(users);
+  // const getEmail = users.find(emailFound => users[id].email === email);
+  for (let user of usersKey) {
+    if (users[user].email === email) {
+      return true;
+    } else {
+      return false;
+    }
   }
 };
 
@@ -117,9 +120,17 @@ app.post("/register", (request, response) => { //append registry data, cookie
   // console.log("user data ---> ", user);
   console.log(users);
   if (request.body.emailID === '' || request.body.passwordID === '') {
-    response.statusCode = 400;
-    response.redirect("/register");
-  }
+    response.status(400).send("Either empty password or email!");
+    // response.redirect("/register");
+    console.log("Found either empty email or password");
+    return;
+  };
+  if (checkEmail(request.body.emailID)) {
+    console.log("Found Email existed on database!!!!");
+    response.status(400).send("Found email entered existed on Database, Please register with new email");
+    // response.redirect("/register");
+    return;
+  };
   
   response.cookie("username", request.body.userID);
   users[request.body.userID].id = user.userID;
