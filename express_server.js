@@ -2,11 +2,16 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 const bodyParser = require("body-parser");
-const cookieParser = require('cookie-parser');
+// const cookieParser = require('cookie-parser');
 const bcrypt = require('bcrypt');
+const cookieSession = require('cookie-session');
 app.use(bodyParser.urlencoded({extended: true}));
-app.use(cookieParser());
+// app.use(cookieParser());
 app.set("view engine", "ejs");
+app.use(cookieSession({
+  name: 'session',
+  keys: ['key1', 'key2']
+}));
 
 function generateRandomString(n) {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -99,7 +104,7 @@ app.get("/", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  const userID = req.cookies.userID;
+  const userID = req.session.userID;
   if (!userID) {
     // let templateVars = { urls: "Please Login", userID: ''}
     // res.render("urls_index", templateVars);
@@ -113,7 +118,7 @@ app.get("/urls", (req, res) => {
   // let usr = '';
   // let pass = "";
   // for (let user of userKeys) {
-  //   if (users[user].email === req.cookies.userID) {
+  //   if (users[user].email === req.session.userID) {
   //     usr = users[user].id;
   //     pass = users[user].password;
   //   }
@@ -122,13 +127,13 @@ app.get("/urls", (req, res) => {
 
   let templateVars = { urls: urlDB, 
    userID: userID,
-  //  emailID: req.cookies.emailID,
+  //  emailID: req.session.emailID,
   };
-  if (req.cookies.userID) {
-    res.cookie("userID", userID);
+  // if (req.session.userID) {
+  //   res.session("userID", userID);
     // res.cookie("passwordID", pass);
     // res.cookie("emailID", email);
-  }
+  // }
   // console.log(templateVars);
   res.render("urls_index", templateVars);
 });
@@ -142,11 +147,11 @@ app.get("/urls.json", (req, res) => {
 // });
 
 app.get("/urls/new", (request, response) => {
-  if (!request.cookies.userID) {
+  if (!request.session.userID) {
     response.redirect("/login");
     return;
   }
-  const templateVars = { userID: request.cookies.userID};
+  const templateVars = { userID: request.session.userID};
   response.render("urls_new", templateVars);
 });
 
@@ -156,7 +161,7 @@ app.post("/urls", (req, res) => {
   const char = generateRandomString(6);
   urlDatabase[char] = {};
   urlDatabase[char].longURL = req.body.longURL;
-  urlDatabase[char].userID = req.cookies.userID;
+  urlDatabase[char].userID = req.session.userID;
   // res.send(res.statusCode = 302);         // Respond with 'Ok' (we will replace this)
   res.redirect("/urls/" + char);
   // console.log(urlDatabase);
@@ -168,14 +173,14 @@ app.post("/logout", (request, response) => { //post logout
   
   // console.log("LOGout --->", request.body);
   // response.clearCookie("emailID");
-  response.clearCookie("userID");
+  request.session = null;
   // response.clearCookie("passwordID");
   response.redirect("/urls");
   // response.render("urls_index");
 });
 
 app.post("/urls/:url/delete", (request, response) => { //delete  url function
-  const user = request.cookies.userID;
+  const user = request.session.userID;
   if (user && users[user] && user === users[user].id) {
     delete urlDatabase[request.params.url];
     console.log("Deleted");
@@ -185,7 +190,7 @@ app.post("/urls/:url/delete", (request, response) => { //delete  url function
 });
 
 app.post("/urls/:id", (request, response) => { // need edit so that no other user can delete
-  const user = request.cookies.userID;
+  const user = request.session.userID;
   const nURL = request.body.newURL;
   const id = request.params.id;
   if (user && users[user] && user === users[user].id) {
@@ -208,8 +213,10 @@ app.post("/login", (request, response) => { //set cookies
     response.status(403).send("Password doesn't match, please re-login");
     return;
   }
+  const userID = getUserID(request.body.emailID, 1);
   // console.log("Test ---> ",request.body);
-  response.cookie("userID", (getUserID(request.body.emailID, 1))); //passing userid to cookie
+  request.session.userID = userID; 
+  // response.session("userID", (getUserID(request.body.emailID, 1))); //passing userid to cookie
   // response.cookie("emailID",request.body.emailID);
   // response.cookie("passwordID", (getUserID(request.body.emailID, 2))); //passing password to cookie 
   response.redirect("/urls");
@@ -242,7 +249,7 @@ app.post("/register", (request, response) => { //append registry data, cookie
   users[userID].email = user.emailID;
   users[userID].password = bcrypt.hashSync(user.passwordID, 10);
   console.log(users[userID], "w/ user-pass ", users[userID].password);
-  response.cookie("userID", userID);  //go back to this if wrong ,userID
+  request.session.userID = userID;  //go back to this if wrong ,userID
   response.redirect("/urls");
 });
 
