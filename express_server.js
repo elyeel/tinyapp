@@ -87,7 +87,7 @@ const urlsForUser = function(id) {
   for (let url of urlsKeys) {
     // console.log('url = ', url, "url.userid = ", [url].userID, "url length =", url.length);
     if (urlDatabase[url].userID === id) {
-      tempVars[url] = [url].longURL;
+      tempVars[url] = urlDatabase[url].longURL;
     }
   }
   return tempVars;
@@ -153,7 +153,9 @@ app.get("/urls/new", (request, response) => {
 app.post("/urls", (req, res) => {
   // console.log(req.body);  // Log the POST request body to the console
   const char = generateRandomString(6);
-  urlDatabase[char] = req.body.longURL;
+  urlDatabase[char] = {};
+  urlDatabase[char].longURL = req.body.longURL;
+  urlDatabase[char].userID = req.cookies.userID;
   // res.send(res.statusCode = 302);         // Respond with 'Ok' (we will replace this)
   res.redirect("/urls/" + char);
   // console.log(urlDatabase);
@@ -253,7 +255,7 @@ app.get("/hello", (req, res) => {
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
+  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL };
   res.render("urls_show", templateVars);
 });
 
