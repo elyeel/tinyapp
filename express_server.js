@@ -185,14 +185,15 @@ app.post("/urls/:url/delete", (request, response) => { //delete  url function
 
 app.post("/urls/:id", (request, response) => { // need edit so that no other user can delete
   const user = request.cookies.userID;
-  if (user && users[user] && user === users[user].id) {
-    delete urlDatabase[request.params.url];
-  }
   const nURL = request.body.newURL;
   const id = request.params.id;
-  urlDatabase[id] = nURL;
-  // console.log(urlDatabase);
-  response.redirect(`/urls/${id}`);
+  if (user && users[user] && user === users[user].id) {
+    // delete urlDatabase[request.params.url];
+    urlDatabase[id].longURL = nURL;
+    urlDatabase[id].userID = user;
+  }
+  console.log(urlDatabase);  // comment this out later
+  response.redirect(`/urls`);
 });
 
 app.post("/login", (request, response) => { //set cookies
@@ -254,7 +255,7 @@ app.get("/hello", (req, res) => {
   res.render("hello_world", templateVars);
 });
 
-app.get("/urls/:shortURL", (req, res) => {
+app.get("/urls/:shortURL", (req, res) => { //add the verification
   let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL };
   res.render("urls_show", templateVars);
 });
