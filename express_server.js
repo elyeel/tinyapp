@@ -28,6 +28,11 @@ let users = {
     id: "user2RandomID", 
     email: "user2@example.com", 
     password: "dishwasher-funk"
+  },
+  "aJ48lW": {
+    id: "aJ48lW", 
+    email: "abc@abc.com", 
+    password: "abc"
   }
 };
 
@@ -76,6 +81,18 @@ const urlDatabase = {
   "9sm5xK": { longURL: "http://www.google.com", userID: "aJ48lW" }
 };
 
+const urlsForUser = function(id) {
+  const urlsKeys = Object.keys(urlDatabase);
+  let tempVars = {};
+  for (let url of urlsKeys) {
+    // console.log('url = ', url, "url.userid = ", [url].userID, "url length =", url.length);
+    if (urlDatabase[url].userID === id) {
+      tempVars[url] = [url].longURL;
+    }
+  }
+  return tempVars;
+}
+
 app.get("/", (req, res) => {
   res.redirect("/login");
 });
@@ -83,10 +100,15 @@ app.get("/", (req, res) => {
 app.get("/urls", (req, res) => {
   const userID = req.cookies.userID;
   if (!userID) {
-    res.redirect("/login");
+    // let templateVars = { urls: "Please Login", userID: ''}
+    // res.render("urls_index", templateVars);
+    res.send("Please login");
+    // res.redirect("/login");
     return;
-  }
-  const userKeys = Object.keys(users);
+  } 
+
+  const urlDB = urlsForUser(userID);
+  console.log(urlDB);
   // let usr = '';
   // let pass = "";
   // for (let user of userKeys) {
@@ -96,7 +118,8 @@ app.get("/urls", (req, res) => {
   //   }
   // };
   // console.log("Found user = ", usr, " == ", pass);
-  let templateVars = { urls: urlDatabase, 
+
+  let templateVars = { urls: urlDB, 
    userID: userID,
   //  emailID: req.cookies.emailID,
   };
@@ -148,13 +171,22 @@ app.post("/logout", (request, response) => { //post logout
   // response.render("urls_index");
 });
 
-app.post("/urls/:url/delete", (request, response) => { //delete function
-  delete urlDatabase[request.params.url];
+app.post("/urls/:url/delete", (request, response) => { //delete  url function
+  const user = request.cookies.userID;
+
+  if (user && users[user] && user === users[user].id) {
+    delete urlDatabase[request.params.url];
+    console.log("Deleted");
+  }
   // console.log(urlDatabase);
   response.redirect("/urls");
 });
 
-app.post("/urls/:id", (request, response) => {
+app.post("/urls/:id", (request, response) => { // need edit so that no other user can delete
+  const user = request.cookies.userID;
+  if (user === users[user].id) {
+    delete urlDatabase[request.params.url];
+  }
   const nURL = request.body.newURL;
   const id = request.params.id;
   urlDatabase[id] = nURL;
