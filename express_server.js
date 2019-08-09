@@ -81,28 +81,27 @@ app.get("/", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  const email = req.cookies.emailID;
+  const userID = req.cookies.userID;
   const userKeys = Object.keys(users);
-  let usr = '';
-  let pass = "";
-  for (let user of userKeys) {
-    if (users[user].email === req.cookies.emailID) {
-      usr = users[user].id;
-      pass = users[user].password;
-    }
-  };
-  console.log("Found user = ", usr, " == ", pass);
+  // let usr = '';
+  // let pass = "";
+  // for (let user of userKeys) {
+  //   if (users[user].email === req.cookies.userID) {
+  //     usr = users[user].id;
+  //     pass = users[user].password;
+  //   }
+  // };
+  // console.log("Found user = ", usr, " == ", pass);
   let templateVars = { urls: urlDatabase, 
-   userID: usr,
-   emailID: req.cookies.emailID,
-   passwordID: pass
+   userID: userID,
+  //  emailID: req.cookies.emailID,
   };
-  if (req.cookies.emailID) {
-    res.cookie("userID", usr);
-    res.cookie("passwordID", pass);
-    res.cookie("emailID", email);
+  if (req.cookies.userID) {
+    res.cookie("userID", userID);
+    // res.cookie("passwordID", pass);
+    // res.cookie("emailID", email);
   }
-  console.log(templateVars);
+  // console.log(templateVars);
   res.render("urls_index", templateVars);
 });
 
@@ -115,7 +114,9 @@ app.get("/urls.json", (req, res) => {
 // });
 
 app.get("/urls/new", (request, response) => {
-  response.render("urls_new");
+  const templateVars = { userID: request.cookies.userID};
+
+  response.render("urls_new", templateVars);
 });
 
 
@@ -133,9 +134,9 @@ app.post("/logout", (request, response) => { //post logout
 
   
   // console.log("LOGout --->", request.body);
-  response.clearCookie("emailID");
+  // response.clearCookie("emailID");
   response.clearCookie("userID");
-  response.clearCookie("passwordID");
+  // response.clearCookie("passwordID");
   response.redirect("/urls");
   // response.render("urls_index");
 });
@@ -166,8 +167,8 @@ app.post("/login", (request, response) => { //set cookies
   }
   // console.log("Test ---> ",request.body);
   response.cookie("userID", (getUserID(request.body.emailID, 1))); //passing userid to cookie
-  response.cookie("emailID",request.body.emailID);
-  response.cookie("passwordID", (getUserID(request.body.emailID, 2))); //passing password to cookie 
+  // response.cookie("emailID",request.body.emailID);
+  // response.cookie("passwordID", (getUserID(request.body.emailID, 2))); //passing password to cookie 
   response.redirect("/urls");
   // response.render("urls_index", templateVars);
 });
@@ -179,7 +180,7 @@ app.post("/register", (request, response) => { //append registry data, cookie
   // console.log("user data ---> ", user);
   // console.log("before checking for email ---> ", users);
   if (request.body.emailID === '' || request.body.passwordID === '') {
-    response.status(400).send("Either empty password or email!");
+    response.status(400).send("Empty password and/or email!");
     // response.redirect("/register");
     console.log("Found either empty email or password");
     return;
@@ -191,15 +192,14 @@ app.post("/register", (request, response) => { //append registry data, cookie
     response.status(400).send("Found email entered existed on Database, Please register with new email");
     // response.redirect("/register");
     return;
-  } else {
-    console.log("not found",request.body.emailID);
   };
-  users[request.body.userID] = {};
-  response.cookie("emailID", request.body.emailID);  //go back to this if wrong ,request.body.userID
-  users[request.body.userID].id = generateRandomString(4);
-  users[request.body.userID].email = user.emailID;
-  users[request.body.userID].password = user.passwordID;
-  // console.log(users);
+  const userID = generateRandomString(4);
+  users[userID] = {};
+  users[userID].id = userID;
+  users[userID].email = user.emailID;
+  users[userID].password = user.passwordID;
+  console.log(users[userID], "w/ user-id ", userID);
+  response.cookie("userID", userID);  //go back to this if wrong ,userID
   response.redirect("/urls");
 });
 
