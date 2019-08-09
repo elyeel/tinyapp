@@ -72,8 +72,8 @@ const checkEmail = function(email) {
 };
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "b2xVn2": { longURL: "http://www.lighthouselabs.ca", userID: "aJ48lW" },
+  "9sm5xK": { longURL: "http://www.google.com", userID: "aJ48lW" }
 };
 
 app.get("/", (req, res) => {
@@ -82,6 +82,10 @@ app.get("/", (req, res) => {
 
 app.get("/urls", (req, res) => {
   const userID = req.cookies.userID;
+  if (!userID) {
+    res.redirect("/login");
+    return;
+  }
   const userKeys = Object.keys(users);
   // let usr = '';
   // let pass = "";
@@ -114,8 +118,11 @@ app.get("/urls.json", (req, res) => {
 // });
 
 app.get("/urls/new", (request, response) => {
+  if (!request.cookies.userID) {
+    response.redirect("/login");
+    return;
+  }
   const templateVars = { userID: request.cookies.userID};
-
   response.render("urls_new", templateVars);
 });
 
