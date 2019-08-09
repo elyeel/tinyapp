@@ -173,7 +173,6 @@ app.post("/logout", (request, response) => { //post logout
 
 app.post("/urls/:url/delete", (request, response) => { //delete  url function
   const user = request.cookies.userID;
-
   if (user && users[user] && user === users[user].id) {
     delete urlDatabase[request.params.url];
     console.log("Deleted");
@@ -184,7 +183,7 @@ app.post("/urls/:url/delete", (request, response) => { //delete  url function
 
 app.post("/urls/:id", (request, response) => { // need edit so that no other user can delete
   const user = request.cookies.userID;
-  if (user === users[user].id) {
+  if (user && users[user] && user === users[user].id) {
     delete urlDatabase[request.params.url];
   }
   const nURL = request.body.newURL;
@@ -244,7 +243,8 @@ app.post("/register", (request, response) => { //append registry data, cookie
 
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL];
-  res.redirect(longURL);
+  console.log(req.params.short)
+  res.redirect(longURL.longURL);
 });
 
 app.get("/hello", (req, res) => {
