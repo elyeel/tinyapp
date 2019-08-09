@@ -3,6 +3,7 @@ const app = express();
 const PORT = 8080; // default port 8080
 const bodyParser = require("body-parser");
 const cookieParser = require('cookie-parser');
+const bcrypt = require('bcrypt');
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 app.set("view engine", "ejs");
@@ -202,7 +203,8 @@ app.post("/login", (request, response) => { //set cookies
     return;
   }
   const tempPass = getUserID(request.body.emailID, 2);
-  if (tempPass !== request.body.passwordID) {
+  if (!bcrypt.compareSync(request.body.passwordID, tempPass)) {
+    console.log(tempPass, " === ", request.body.passwordID);
     response.status(403).send("Password doesn't match, please re-login");
     return;
   }
@@ -238,8 +240,8 @@ app.post("/register", (request, response) => { //append registry data, cookie
   users[userID] = {};
   users[userID].id = userID;
   users[userID].email = user.emailID;
-  users[userID].password = user.passwordID;
-  console.log(users[userID], "w/ user-id ", userID);
+  users[userID].password = bcrypt.hashSync(user.passwordID, 10);
+  console.log(users[userID], "w/ user-pass ", users[userID].password);
   response.cookie("userID", userID);  //go back to this if wrong ,userID
   response.redirect("/urls");
 });
