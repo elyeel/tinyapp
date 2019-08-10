@@ -16,20 +16,20 @@ const { getUserByEmail, generateRandomString } = require("./helpers");
 
 // console.log(generateRandomString());
 
-let users = { 
+let users = {
   "userRandomID": {
-    id: "userRandomID", 
-    email: "user@example.com", 
+    id: "userRandomID",
+    email: "user@example.com",
     password: "purple-monkey-dinosaur"
   },
- "user2RandomID": {
-    id: "user2RandomID", 
-    email: "user2@example.com", 
+  "user2RandomID": {
+    id: "user2RandomID",
+    email: "user2@example.com",
     password: "dishwasher-funk"
   },
   "aJ48lW": {
-    id: "aJ48lW", 
-    email: "abc@abc.com", 
+    id: "aJ48lW",
+    email: "abc@abc.com",
     password: "abc"
   }
 };
@@ -46,7 +46,7 @@ const checkEmail = function(email) {
       // console.log('content user[user].email = ', users[user].email);
       // return false;
     }
-  } 
+  }
   return false;
 };
 
@@ -65,22 +65,23 @@ const urlsForUser = function(id) {
     }
   }
   return tempVars;
-}
+};
 
 app.get("/", (req, res) => {
   res.redirect("/login");
 });
 
 app.get("/urls", (req, res) => {
-  const userID = req.session.userID;
-  if (!userID) {
+  // const userID = req.session.userID;
+  const emailID = req.session.emailID;
+  if (!emailID) {
     // let templateVars = { urls: "Please Login", userID: ''}
     // res.render("urls_index", templateVars);
     res.send("Please login");
     // res.redirect("/login");
     return;
-  } 
-
+  }
+  const userID = getUserByEmail(emailID, users, 1);
   const urlDB = urlsForUser(userID);
   console.log(urlDB);
   // let usr = '';
@@ -93,9 +94,9 @@ app.get("/urls", (req, res) => {
   // };
   // console.log("Found user = ", usr, " == ", pass);
 
-  let templateVars = { urls: urlDB, 
-   userID: userID,
-  //  emailID: req.session.emailID,
+  let templateVars = { urls: urlDB,
+    userID: userID,
+    emailID: req.session.emailID
   };
   // if (req.session.userID) {
   //   res.session("userID", userID);
@@ -115,11 +116,11 @@ app.get("/urls.json", (req, res) => {
 // });
 
 app.get("/urls/new", (request, response) => {
-  if (!request.session.userID) {
+  if (!request.session.emailID) {
     response.redirect("/login");
     return;
   }
-  const templateVars = { userID: request.session.userID};
+  const templateVars = { emailID: request.session.emailID};
   response.render("urls_new", templateVars);
 });
 
@@ -127,9 +128,10 @@ app.get("/urls/new", (request, response) => {
 app.post("/urls", (req, res) => {
   // console.log(req.body);  // Log the POST request body to the console
   const char = generateRandomString(6);
+  const userID = getUserByEmail(req.session.emailID, users, 1);
   urlDatabase[char] = {};
   urlDatabase[char].longURL = req.body.longURL;
-  urlDatabase[char].userID = req.session.userID;
+  urlDatabase[char].userID = userID;
   // res.send(res.statusCode = 302);         // Respond with 'Ok' (we will replace this)
   res.redirect("/urls/" + char);
   // console.log(urlDatabase);
@@ -148,8 +150,9 @@ app.post("/logout", (request, response) => { //post logout
 });
 
 app.post("/urls/:url/delete", (request, response) => { //delete  url function
-  const user = request.session.userID;
-  if (user && users[user] && user === users[user].id) {
+  const email = request.session.emailID;
+  const user = getUserByEmail(email, users, 1);
+  if (email && users[user] && email === users[user].email) {
     delete urlDatabase[request.params.url];
     console.log("Deleted");
   }
@@ -158,10 +161,11 @@ app.post("/urls/:url/delete", (request, response) => { //delete  url function
 });
 
 app.post("/urls/:id", (request, response) => { // need edit so that no other user can delete
-  const user = request.session.userID;
+  const email = request.session.emailID;
+  const user = getUserByEmail(email, users, 1);
   const nURL = request.body.newURL;
   const id = request.params.id;
-  if (user && users[user] && user === users[user].id) {
+  if (email && users[user] && email === users[user].email) {
     // delete urlDatabase[request.params.url];
     urlDatabase[id].longURL = nURL;
     urlDatabase[id].userID = user;
@@ -181,12 +185,13 @@ app.post("/login", (request, response) => { //set cookies
     response.status(403).send("Password doesn't match, please re-login");
     return;
   }
-  const userID = getUserByEmail(request.body.emailID, users, 1);
+  // const userID = getUserByEmail(request.body.emailID, users, 1);
   // console.log("Test ---> ",request.body);
-  request.session.userID = userID; 
+  const emailID = request.body.emailID;
+  request.session.emailID = emailID;
   // response.session("userID", (getUserByEmail(request.body.emailID, 1))); //passing userid to cookie
   // response.cookie("emailID",request.body.emailID);
-  // response.cookie("passwordID", (getUserByEmail(request.body.emailID, 2))); //passing password to cookie 
+  // response.cookie("passwordID", (getUserByEmail(request.body.emailID, 2))); //passing password to cookie
   response.redirect("/urls");
   // response.render("urls_index", templateVars);
 });
@@ -202,7 +207,7 @@ app.post("/register", (request, response) => { //append registry data, cookie
     // response.redirect("/register");
     console.log("Found either empty email or password");
     return;
-  };    
+  }
   // console.log("Current users db befor checking email : ", users); // check for users database before checking existing email
   // const found = checkEmail(request.body.emailID);
   if (checkEmail(request.body.emailID)) {
@@ -210,20 +215,20 @@ app.post("/register", (request, response) => { //append registry data, cookie
     response.status(400).send("Found email entered existed on Database, Please register with new email");
     // response.redirect("/register");
     return;
-  };
+  }
   const userID = generateRandomString(4);
   users[userID] = {};
   users[userID].id = userID;
   users[userID].email = user.emailID;
   users[userID].password = bcrypt.hashSync(user.passwordID, 10);
-  console.log(users[userID], "w/ user-pass ", users[userID].password);
-  request.session.userID = userID;  //go back to this if wrong ,userID
+  // console.log(users[userID], "w/ user-pass ", users[userID].password);
+  request.session.emailID = user.emailID;  //go back to this if wrong ,userID
   response.redirect("/urls");
 });
 
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL];
-  console.log(req.params.short)
+  console.log(req.params.short);
   res.redirect(longURL.longURL);
 });
 
@@ -239,11 +244,11 @@ app.get("/urls/:shortURL", (req, res) => { //add the verification
 
 app.get("/register", (request, response) => {
   response.render("user_reg");
-})
+});
 
 app.get("/login", (request, response) => {
   response.render("user_login");
-})
+});
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);

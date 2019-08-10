@@ -11,11 +11,11 @@
       </div>
     </div>
     <div>
-      <% if (userID) { %>
+      <% if (emailID) { %>
         <form method="POST" action="/logout">
           <label for="logout">
-          <h5>Logged In as: <%= userID %>!</h5>
-          <input type="text" id="userID" name="userID" value="<%= userID %>" disabled/>
+          <h5>Logged In as: <%= emailID %>!</h5>
+          <input type="text" id="emailID" name="emailID" value="<%= emailID %>" disabled/>
           <button type="submit">LogOut</button></label>
         </form>
       <% } else { %>
