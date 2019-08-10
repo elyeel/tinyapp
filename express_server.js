@@ -12,16 +12,8 @@ app.use(cookieSession({
   name: 'session',
   keys: ['key1', 'key2']
 }));
+const { getUserByEmail, generateRandomString } = require("./helpers");
 
-function generateRandomString(n) {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  let short = '';
-  for (let i = 0; i < n; i++) {
-    const random = Math.floor(Math.random() * 62);
-    short += chars[random];
-  }
-  return short;
-}
 // console.log(generateRandomString());
 
 let users = { 
@@ -41,30 +33,6 @@ let users = {
     password: "abc"
   }
 };
-
-const getUserID = function(email,select) {
-  const userKeys = Object.keys(users);
-  let usr = '';
-  let pass = "";
-  for (let user of userKeys) {
-    if (users[user].email === email) {
-      usr = users[user].id;
-      pass = users[user].password;
-    }
-  }
-  switch (select) {
-    case 1:
-      return usr;
-      break;
-    case 2:
-      return pass;
-      break;
-    default:
-      return usr;
-  }
-};
-
-
 
 const checkEmail = function(email) {
   const usersKey = Object.keys(users);
@@ -207,18 +175,18 @@ app.post("/login", (request, response) => { //set cookies
     response.status(403).send("Can't find your email on DB, Please register");
     return;
   }
-  const tempPass = getUserID(request.body.emailID, 2);
+  const tempPass = getUserByEmail(request.body.emailID, users, 2);
   if (!bcrypt.compareSync(request.body.passwordID, tempPass)) {
     console.log(tempPass, " === ", request.body.passwordID);
     response.status(403).send("Password doesn't match, please re-login");
     return;
   }
-  const userID = getUserID(request.body.emailID, 1);
+  const userID = getUserByEmail(request.body.emailID, users, 1);
   // console.log("Test ---> ",request.body);
   request.session.userID = userID; 
-  // response.session("userID", (getUserID(request.body.emailID, 1))); //passing userid to cookie
+  // response.session("userID", (getUserByEmail(request.body.emailID, 1))); //passing userid to cookie
   // response.cookie("emailID",request.body.emailID);
-  // response.cookie("passwordID", (getUserID(request.body.emailID, 2))); //passing password to cookie 
+  // response.cookie("passwordID", (getUserByEmail(request.body.emailID, 2))); //passing password to cookie 
   response.redirect("/urls");
   // response.render("urls_index", templateVars);
 });
