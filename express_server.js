@@ -147,7 +147,7 @@ app.post("/register", (request, response) => {
     console.log("Found either empty email or password");
     return;
   }
-  if (checkEmail(request.body.emailID)) {
+  if (checkEmail(request.body.emailID, users)) {
     console.log("Found Email existed on database!!!!");
     response.status(400).send("Found email entered existed on Database, Please register with new email");
     return;
