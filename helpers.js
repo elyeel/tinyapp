@@ -29,5 +29,32 @@ function generateRandomString(n) {
   }
   return short;
 };
+// check if email exist in database
+const checkEmail = function(email, users) {
+  const usersKey = Object.keys(users);
+  // console.log(usersKey," <---> ",email);
+  // const getEmail = users.find(emailFound => users[id].email === email);
+  for (let user of usersKey) {
+    // console.log(user, " email = ", users[user].email);
+    if (users[user].email === email) {
+      return true;
+    } else {
+      // console.log('content user[user].email = ', users[user].email);
+      // return false;
+    }
+  }
+  return false;
+};
 
-module.exports = { getUserByEmail, generateRandomString }
+const urlsForUser = function(id, urlDatabase) {
+  const urlsKeys = Object.keys(urlDatabase);
+  let tempVars = {};
+  for (let url of urlsKeys) {
+    if (urlDatabase[url].userID === id) {
+      tempVars[url] = urlDatabase[url].longURL;
+    }
+  }
+  return tempVars;
+};
+
+module.exports = { getUserByEmail, generateRandomString, checkEmail, urlsForUser }
