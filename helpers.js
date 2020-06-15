@@ -2,12 +2,14 @@ const getUserByEmail = function(email, users, select) { //gets pass or userid by
   const userKeys = Object.keys(users);
   let usr = undefined;
   let pass = undefined;
+  // console.log(email, users);
   for (let user of userKeys) {
-    if (users[user].email === email) {
+    if (users[user].email === email.trim()) {
       usr = users[user].id;
       pass = users[user].password;
     }
   }
+  // console.log("Pass ->", pass)
   switch (select) {
     case 1:
       return usr;

@@ -42,15 +42,19 @@ const urlDatabase = {
 // All Routes start from here
 // homepage
 app.get("/", (req, res) => {
-  res.redirect("/login");
+  if (users[req.session.emailID]) {
+    res.redirect('/urls');
+  } else {
+    res.redirect("/login");
+  }
 });
 
 // going to urls that exist in database
 app.get("/urls", (req, res) => {
   const emailID = req.session.emailID;
   if (!emailID) {
-    res.redirect("/login");
-    return;
+    res.status(403).send("Please Log-in before continuing!");
+    return res.redirect("/login");
   }
 
   const userID = getUserByEmail(emailID, users, 1);
@@ -130,6 +134,7 @@ app.post("/login", (request, response) => { //set cookies
     return;
   }
   const tempPass = getUserByEmail(request.body.emailID, users, 2);
+  console.log(request.body.passwordID,tempPass);
   if (!bcrypt.compareSync(request.body.passwordID, tempPass)) {
     response.status(403).send("Password doesn't match, please re-login");
     return;
@@ -189,7 +194,11 @@ app.get("/register", (request, response) => {
 });
 
 app.get("/login", (request, response) => {
-  response.render("user_login");
+  const templateVars = {
+    user: request.session.userID,
+    email: request.session.emailID
+  }
+  response.render("user_login", templateVars);
 });
 
 app.listen(PORT, () => {
